@@ -17,3 +17,76 @@
 主要记录关于crontab 计划任务的相关信息，比如 系统计划任务的错误配置 计划任务的修改等
 - /var/log/malilog or /var/log/
 记录着邮件的往来信息，默认是 postfix 邮件服务器的一些信息
+
+#网络功能
+###使用ifcfg文件配置静态网络
+在/etc/sysconfig/network-scripts/ 目录中生成的ifcfg-enp4s0的文件中修改配置
+```
+TYPE=Ethernet
+PROXY_METHOD=none
+BROWSER_ONLY=no
+DEVICE=enp4s0
+BOOTPROTO=none
+ONBOOT=yes
+IPADDR=192.168.0.10
+PREFIX=24
+DEFROUTE=yes
+IPV4_FAILURE_FATAL=no
+IPV6INIT=yes
+IPV6_AUTOCONF=yes
+IPV6_DEFROUTE=yes
+IPV6_FAILURE_FATAL=no
+IPV6_ADDR_GEN_MODE=stable-privacy
+NAME=enp4s0static
+UUID=08c3a30e-c5e2-4d7b-831f-26c3cdc29293
+```
+然后执行systemctl reload NetworkManager命令重新加载配置
+###使用ifcfg配置网关
+/etc/sysconfig/network文件
+`GATEWAY=192.168.0.1`
+
+###使用IP命令配置网络
+`ip addr [add|del] address dev interface-name`
+例如
+`ip address add 192.168.0.10/24 dev enp3s0`
+指令立即生效但重启后消失
+###路由
+`ip route [add|del|change|append|replace] destination-address`
+显示路由表
+'ip route'
+例如
+```
+ip route add 192.168.2.1 via 10.0.0.1 [ dev interface name]
+ip route add 192.168.2.0/24 via 10.0.0.1 [ dev interface name]
+```
+
+#systemctl
+```
+systemctl start network.service
+systemctl stop network.service
+systemctl restart network.service
+systemctl reload netwrok.service
+systemctl status network.service
+systemctl enable network.service
+systemctl disable network.service
+
+systemctl list-units --type service  #列出当前运行的服务
+
+systemctl rescue #进入救援模式
+systemctl emergency #进入紧急模式
+```
+
+###Linux启动流程
+电源
+BIOS/UEFI
+Bootloader
+MBR/GPT
+GRUB/GRUB2
+|说明|传统模式|新模式|
+|----|----|----|
+|第一个进程|init|systemd|
+|运行级别|/etc/inittab(默认是3)|etc/systemd/system/default.target(默认multi-user.target)|
+|初始化|etc/init.d/boot|usr/lib/systemd/system/sysinit.taiget|
+|服务|串行启动|并行启动|
+|登录|/sbin/mingetty|/sbin/agetty|
+开启shell
