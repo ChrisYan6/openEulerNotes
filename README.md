@@ -82,6 +82,7 @@ BIOS/UEFI
 Bootloader
 MBR/GPT
 GRUB/GRUB2
+加载内核
 |说明|传统模式|新模式|
 |----|----|----|
 |第一个进程|init|systemd|
